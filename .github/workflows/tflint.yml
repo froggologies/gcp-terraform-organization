@@ -1,0 +1,34 @@
+name: TFLint
+on:
+  push:
+    branches: main
+    paths:
+      - '**.tf'
+  workflow_dispatch:
+env:
+  TF_DIR: 'src'
+jobs:
+  Linting:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout source code
+      uses: actions/checkout@v4
+      with:
+        sparse-checkout: src
+    - name: Cache plugin dir
+      uses: actions/cache@v3
+      with:
+        path: ~/.tflint.d/plugins
+        key: ubuntu-latest-tflint-${{ hashFiles('.tflint.hcl') }}
+    - name: Setup TFLint
+      uses: terraform-linters/setup-tflint@v3
+      with:
+        tflint_version: latest
+    - name: Show version
+      run: tflint --chdir=$TF_DIR --version
+    - name: Init TFLint
+      run: tflint --chdir=$TF_DIR --init
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+    - name: Run TFLint
+      run: tflint --chdir=$TF_DIR -f compact

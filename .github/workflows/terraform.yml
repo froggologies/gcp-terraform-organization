@@ -1,0 +1,59 @@
+name: Terraform
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        type: choice
+        description: Operation
+        options:
+        - None
+        - Plan
+        - Apply
+        - Destroy
+      use-show:
+        type: boolean
+        description: terraform show
+        default: false
+      use-output:
+        type: boolean
+        description: terraform output
+        default: false
+env:
+  TF_DIR: 'src'
+  TF_VAR_billing_account: '${{ secrets.TF_VAR_billing_account }}'
+  TF_VAR_org_id: '${{ secrets.TF_VAR_org_id }}'
+jobs:
+  Terraforming:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out repository code
+      uses: actions/checkout@v4
+      with:
+        sparse-checkout: src
+    - name: Authenticate with Google Cloud
+      uses: 'google-github-actions/auth@v2'
+      with:
+        credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+    - name: Set up Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: "~>1.7.0"
+    - name: Cache Terraform provider
+      uses: terraform-cache/terraform-cache@v1
+    - name: Terraform Init
+      run: terraform -chdir=$TF_DIR init
+    - name: Terraform Plan
+      if: github.event.inputs.operation == 'Plan'
+      run: terraform -chdir=$TF_DIR plan
+    - name: Terraform Apply
+      if: github.event.inputs.operation == 'Apply'
+      run: terraform -chdir=$TF_DIR apply -auto-approve
+    - name: Terraform Destroy
+      if: github.event.inputs.operation == 'Destroy'
+      run: terraform -chdir=$TF_DIR destroy -auto-approve
+    - name: Terraform Show
+      if: github.event.inputs.use-show == 'true'
+      run: terraform -chdir=$TF_DIR show
+    - name: Terraform Output
+      if: github.event.inputs.use-output == 'true'
+      run: terraform -chdir=$TF_DIR output
