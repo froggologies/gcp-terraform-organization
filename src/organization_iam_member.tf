@@ -1,8 +1,10 @@
 locals {
   IAM = {
     "serviceAccount:evros-oikolos@master-ecbc70.iam.gserviceaccount.com" = [
+      "roles/iam.securityAdmin",
+      "roles/orgpolicy.policyAdmin",
       "roles/resourcemanager.folderCreator",
-      "roles/iam.securityAdmin"
+      "roles/resourcemanager.projectCreator"
     ]
     "user:google@fajarmaftuhfadli.com" = [
       "roles/resourcemanager.organizationAdmin",
