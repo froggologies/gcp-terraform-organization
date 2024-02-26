@@ -13,7 +13,7 @@ locals {
 
 module "google_organization_iam_member" {
   for_each = toset(local.IAM)
-  source   = "../modules/google_organization_iam_member"
+  source   = "./modules/google_organization_iam_member"
   org_id   = var.org_id
   member   = each.key
   roles    = each.value
