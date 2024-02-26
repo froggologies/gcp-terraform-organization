@@ -20,7 +20,6 @@ on:
         default: false
 env:
   TF_DIR: 'src'
-  TF_VAR_billing_account: '${{ secrets.TF_VAR_billing_account }}'
   TF_VAR_org_id: '${{ secrets.TF_VAR_org_id }}'
 jobs:
   Terraforming:
